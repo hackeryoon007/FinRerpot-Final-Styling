@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FinReport - Light/Dark Mode</title>
+    <style>
+        :root {
+            /* Dark Mode Variables (Default) */
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2c2c2c;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --accent-blue: #4d94ff;
+            --accent-green: #36d170;
+            --accent-red: #ff5f5f;
+            --compass-color: #FFD700; /* Yellow color for compass */
+            --border-color: rgba(255,255,255,0.1);
+            --gradient-start: #295793;
+            --gradient-end: #fcfcfc;
+            --mode-bg: rgba(255,255,255,0.1);
+        }
+
+        /* Light Mode Variables */
+        .light-mode {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f4f4f4;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent-blue: #0066cc;
+            --accent-green: #009933;
+            --accent-red: #cc0000;
+            --compass-color: #FFD700; /* Keep yellow in light mode too */
+            --border-color: rgba(0,0,0,0.1);
+            --gradient-start: #f0f0f0;
+            --gradient-end: #ffffff;
+            --mode-bg: rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            background-attachment: fixed;
+            color: var(--text-primary);
+            margin: 0;
+            padding: 50px; /* Increased padding */
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .report-container {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            box-shadow: 
+                0 15px 40px #541d84, 
+                0 5px 15px #541d84;
+            width: 100%;
+            max-width: 1000px; /* Increased from 800px to 1000px (25% larger) */
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .mode-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--mode-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .mode-toggle:hover {
+            opacity: 0.8;
+        }
+
+        .mode-toggle svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-primary);
+        }
+
+        .news-header {
+            background-color: var(--bg-primary);
+            padding: 25px; /* Slightly increased padding */
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .news-icon {
+            font-size: 40px; /* Increased from 32px */
+            margin-right: 20px; /* Increased from 15px */
+            opacity: 0.8;
+        }
+
+        .news-content, .translation {
+            color: var(--text-primary);
+        }
+
+        .translation {
+            margin-top: 6px; 
+            padding: 12px; 
+            background-color: rgba(61, 61, 61, 0.662);
+            border-radius: 6px;
+            font-size: 15px; 
+            color: var(--text-secondary);
+        }
+
+        .light-mode .translation {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .finreport-header {
+            background-color: var(--bg-primary);
+            padding: 10px 25px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+            margin-top: -10px;
+        }
+
+        .finreport-title {
+            font-size: 50px; 
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .compass-icon {
+            margin-right: 20px;
+            width: 60px;
+            height: 60px;
+        }
+
+        .compass-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .report-intro {
+            padding: 25px; 
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 16px; 
+            color: var(--text-secondary);
+        }
+
+        .section-header {
+            font-size: 30px; 
+            font-weight: 600;
+            padding: 18px 25px; 
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            margin: 0;
+            color: var(--accent-blue);
+        }
+
+        .factor-list {
+            list-style-type: none;
+            padding: 1;
+            margin: 0;
+        }
+
+        .factor-item {
+            padding: 15px 25px; 
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            color: var(--text-primary);
+            font-size: 16px; 
+        }
+
+        .factor-name {
+            font-weight: 600;
+            min-width: 225px; 
+            color: var(--accent-blue);
+        }
+
+        .positive {
+            color: var(--accent-green);
+        }
+
+        .negative {
+            color: var(--accent-red);
+        }
+
+        .risk-assessment,
+        .overall-trend,
+        .summary {
+            padding: 25px; 
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 16px; 
+        }
+
+        .disclaimer {
+            background-color: var(--bg-primary);
+            padding: 18px 25px; 
+            font-size: 13px; 
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px;
+            }
+
+            .factor-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .factor-name {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <button id="modeToggle" class="mode-toggle">
+            <svg id="modeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path id="moonPath" d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z" style="display: none;"/>
+                <circle id="sunCircle" cx="12" cy="12" r="4"/>
+                <line id="sunLine1" x1="12" y1="1" x2="12" y2="3"/>
+                <line id="sunLine2" x1="12" y1="21" x2="12" y2="23"/>
+                <line id="sunLine3" x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line id="sunLine4" x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line id="sunLine5" x1="1" y1="12" x2="3" y2="12"/>
+                <line id="sunLine6" x1="21" y1="12" x2="23" y2="12"/>
+                <line id="sunLine7" x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line id="sunLine8" x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+        </button>
+
+        <div class="news-header">
+            <div class="news-icon">👨‍💼</div>
+            <div>
+                <div class="news-content">
+                    Analyze stock <strong>000063.SZ</strong>. Today, the following news has emerged:<br>
+                    【中兴通讯：预计前三季度净利同比增长106%-121%】财联社10月14日电，中兴通讯公告，预计前三季度实现净利润56亿元-60亿元，同比增长106.49%-121.23%；预计第三季度实现净利润15.2亿元-19.2亿元，同比增长77.99%-124.79%。公司不断优化市场格局，营业收入同比增长、毛利率持续恢复改善，盈利能力大幅提升；本公司转让北京中兴高达通信技术有限公司90%股权，确认税前利润约8亿元人民币。
+                </div>
+                <div class="translation">
+                    <strong>English Translation:</strong><br>
+                    ZTE Communication: Expected Net Profit Growth of 106%-121% in First Three Quarters
+                    
+                    Financial News, October 14th - ZTE announced that it expects to achieve a net profit of 5.6-6.0 billion yuan in the first three quarters, representing a year-on-year growth of 106.49%-121.23%. The company expects to realize a net profit of 1.52-1.92 billion yuan in the third quarter, with a year-on-year growth of 77.99%-124.79%.
+
+                    The company has continuously optimized its market positioning, with revenue growth and sustained improvement in gross margin, significantly enhancing its profitability. The company has transferred 90% of its equity in Beijing Zhongxing Gaoda Communication Technology Co., Ltd., confirming a pre-tax profit of approximately 800 million yuan.
+                </div>
+            </div>
+        </div>
+
+        <div class="finreport-header">
+            <h1 class="finreport-title">
+                <div class="compass-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <!-- Outer circle -->
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="var(--compass-color)" stroke-width="2" />
+                        
+                        <!-- Inner circle -->
+                        <circle cx="50" cy="50" r="5" fill="var(--compass-color)" />
+                        
+                        <!-- North direction -->
+                        <polygon points="50,5 45,45 50,40 55,45" fill="var(--compass-color)" />
+                        
+                        <!-- South direction -->
+                        <polygon points="50,95 45,55 50,60 55,55" fill="var(--compass-color)" />
+                        
+                        <!-- East direction -->
+                        <polygon points="95,50 55,45 60,50 55,55" fill="var(--compass-color)" />
+                        
+                        <!-- West direction -->
+                        <polygon points="5,50 45,45 40,50 45,55" fill="var(--compass-color)" />
+                        
+                        <!-- Tick marks -->
+                        <line x1="50" y1="10" x2="50" y2="15" stroke="var(--compass-color)" stroke-width="1" />
+                        <line x1="50" y1="85" x2="50" y2="90" stroke="var(--compass-color)" stroke-width="1" />
+                        <line x1="10" y1="50" x2="15" y2="50" stroke="var(--compass-color)" stroke-width="1" />
+                        <line x1="85" y1="50" x2="90" y2="50" stroke="var(--compass-color)" stroke-width="1" />
+                    </svg>
+                </div>
+                FinReport
+            </h1>
+        </div>
+        
+        <p class="report-intro">
+            Based on the analysis from our model, the following impacts on the stock's returns are expected from this news.
+        </p>
+
+      <!-- Return Forecast -->
+      <h2 class="section-header">Return Forecast</h2>
+               <ul class="factor-list">
+                <li class="factor-item">
+                    <span class="factor-name">Market Factor:</span> 
+                    <span>Turbulent market environment indicates</span>
+                    <span class="negative"> : an estimated 1.3% negative impact.</span>
+                </li>
+                <li class="factor-item">
+                    <span class="factor-name">Size Factor:</span> 
+                    <span>Significant expansion in asset base suggests an</span>
+                    <span class="positive">: approximately 0.8% positive size premium.</span>
+                </li>
+                <li class="factor-item">
+                    <span class="factor-name">Valuation (BP) Factor:</span> 
+                    <span>Marginal impact on Book to Market Equity suggests a very small</span>
+                    <span class="positive">: 0.0% effect on valuation metrics.</span>
+                </li>
+                <li class="factor-item">
+                    <span class="factor-name">Profitability Factor</span> 
+                    <span>Slight profitability concerns suggests a slight :</span>
+                    <span class="negative">: 0.9% downward effect on earnings metrics.</span>
+                </li>
+                <li class="factor-item">
+                    <span class="factor-name">Investment Factor:</span> 
+                    <span>Growth-oriented investments may</span>
+                    <span class="positive">: add 0.6% to company valuation.</span>
+                </li>
+                <li class="factor-item">
+                    <span class="factor-name">News Effect Factor:</span> 
+                    <span>Significant negative sentiment suggests a significant</span>
+                    <span class="negative">: 1.1% reduction in investor confidence.</span>
+                </li>
+                <li class="factor-item">
+                    <span class="factor-name">Event Factor:</span> 
+                    <span>Business developments indicate a marginal</span>
+                    <span class="positive">: 0.0% event effect.</span>
+                </li>
+            </ul>
+        
+        <h2 class="section-header">Risk Assessment</h2>
+        <div class="risk-assessment">
+            <p>
+                Historical data reveals heightened stock volatility in 30 days,
+                <span class="negative">expected max decline: 10%, indicating substantial risk.</span>
+            </p>
+        </div>
+        
+        <h2 class="section-header">Overall Trend Prognosis</h2>
+        <div class="overall-trend">
+            <p class="positive">
+                Positive
+            </p>
+        </div>
+        
+        <h2 class="section-header">Summary</h2>
+        <div class="summary">
+            <p>
+                After considering the revenue forecast and risk assessment, we conclude that 
+                <span class="positive">the stock has a relatively low level of risk</span> with an estimated return growth of 1% to 2%.
+            </p>
+        </div>
+        
+        <div class="disclaimer">
+            This report serves as a reference; it is not investment advice. Kindly exercise caution and acknowledge personal risks.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modeToggle = document.getElementById('modeToggle');
+            const container = document.querySelector('.report-container');
+            const moonPath = document.getElementById('moonPath');
+            const sunCircle = document.getElementById('sunCircle');
+            const sunLines = [
+                document.getElementById('sunLine1'),
+                document.getElementById('sunLine2'),
+                document.getElementById('sunLine3'),
+                document.getElementById('sunLine4'),
+                document.getElementById('sunLine5'),
+                document.getElementById('sunLine6'),
+                document.getElementById('sunLine7'),
+                document.getElementById('sunLine8')
+            ];
+
+            // Check for saved mode preference
+            const savedMode = localStorage.getItem('finReportMode');
+            if (savedMode === 'light') {
+                container.classList.add('light-mode');
+                moonPath.style.display = 'block';
+                sunCircle.style.display = 'none';
+                sunLines.forEach(line => line.style.display = 'none');
+            }
+
+            modeToggle.addEventListener('click', () => {
+                container.classList.toggle('light-mode');
+
+                // Toggle icon visibility
+                if (container.classList.contains('light-mode')) {
+                    moonPath.style.display = 'block';
+                    sunCircle.style.display = 'none';
+                    sunLines.forEach(line => line.style.display = 'none');
+                    localStorage.setItem('finReportMode', 'light');
+                } else {
+                    moonPath.style.display = 'none';
+                    sunCircle.style.display = 'block';
+                    sunLines.forEach(line => line.style.display = 'block');
+                    localStorage.setItem('finReportMode', 'dark');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
